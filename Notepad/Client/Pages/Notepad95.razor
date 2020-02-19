@@ -2,15 +2,27 @@
 @using Notepad.Shared
 @inject HttpClient Http
 
+@if (_canSave)
+{
+    <button class="btn mr-2 mb-2 btn-secondary" type="button">
+        <span class="btn-text">Save</span>
+    </button>
+}
+else
+{
+    <button class="btn mr-2 mb-2 btn-primary" @onclick="@Save" type="button">
+        <span class="btn-text">Save</span>
+    </button>
+}
 <div class="container">
     <div id="mydiv" class="notepad">
-        <div id="mydivheader" class="notepad-bar">
-            <div class="notepad-icon">
+        <div id="mydivheader" class="notepad-bar noselect">
+            <div class="notepad-icon noselect">
                 <img src="http://kilothought.com/wp-content/uploads/2014/03/notepad-31-icon.png">
             </div>
-            <div class="notepad-title">@Filename - Notepad</div>
+            <div class="notepad-title noselect">My File 1 - Notepad</div>
             <div class="notepad-exit">
-                <div class="button-exit">&#10060;</div> <!-- Need to change this -->
+                <div class="button-exit"><b>X</b></div> <!-- Need to change this -->
             </div>
             <div class="notepad-maximize">
                 <div class="button-maximize">
@@ -23,13 +35,12 @@
                 </div>
             </div>
         </div> <!-- notepad bar -->
-        <div class="notepad-settings">
+        <div class="notepad-settings noselect">
             <div class="settings-text"><span class="underline">F</span>ile</div>
             <div class="settings-text"><span class="underline">E</span>dit</div>
             <div class="settings-text"><span class="underline">S</span>earch</div>
             <div class="settings-text"><span class="underline">H</span>elp</div>
         </div><!-- notepad settings -->
-
         @switch (_state)
         {
             case NotepadState.Loading:
@@ -42,23 +53,7 @@
                 <textarea disabled class="notepad-content textarea-disabled" @bind="notepadFile.FileContent"></textarea>
                 break;
         }
-
     </div> <!-- notepad -->
-
-    @if (_canSave)
-    {
-        <button class="btn mr-2 mb-2 btn-secondary" type="button">
-            <span class="btn-text">Save</span>
-        </button>
-    }
-    else
-    {
-        <button class="btn mr-2 mb-2 btn-primary" @onclick="@Save" type="button">
-            <span class="btn-text">Save</span>
-        </button>
-    }
-
-
 </div> <!-- container -->
 
 @code
