@@ -1,0 +1,94 @@
+﻿@page "/{filename}"
+@using Notepad.Shared
+@inject HttpClient Http
+
+<div class="container">
+    <div id="mydiv" class="notepad">
+        <div id="mydivheader" class="notepad-bar">
+            <div class="notepad-icon">
+                <img src="http://kilothought.com/wp-content/uploads/2014/03/notepad-31-icon.png">
+            </div>
+            <div class="notepad-title">@Filename - Notepad</div>
+            <div class="notepad-exit">
+                <div class="button-exit">&#10060;</div> <!-- Need to change this -->
+            </div>
+            <div class="notepad-maximize">
+                <div class="button-maximize">
+                    <div class="icon-maximize"></div>
+                </div>
+            </div>
+            <div class="notepad-minimize">
+                <div class="button-minimize">
+                    <div class="icon-minimize"></div>
+                </div>
+            </div>
+        </div> <!-- notepad bar -->
+        <div class="notepad-settings">
+            <div class="settings-text"><span class="underline">F</span>ile</div>
+            <div class="settings-text"><span class="underline">E</span>dit</div>
+            <div class="settings-text"><span class="underline">S</span>earch</div>
+            <div class="settings-text"><span class="underline">H</span>elp</div>
+        </div><!-- notepad settings -->
+
+        @switch (_state)
+        {
+            case NotepadState.Loading:
+                <textarea disabled class="notepad-content textarea-disabled"></textarea>
+                break;
+            case NotepadState.CanWrite:
+                <textarea class="notepad-content" @bind="notepadFile.FileContent"></textarea>
+                break;
+            case NotepadState.Saving:
+                <textarea disabled class="notepad-content textarea-disabled" @bind="notepadFile.FileContent"></textarea>
+                break;
+        }
+
+    </div> <!-- notepad -->
+
+    @if (_canSave)
+    {
+        <button class="btn mr-2 mb-2 btn-secondary" type="button">
+            <span class="btn-text">Save</span>
+        </button>
+    }
+    else
+    {
+        <button class="btn mr-2 mb-2 btn-primary" @onclick="@Save" type="button">
+            <span class="btn-text">Save</span>
+        </button>
+    }
+
+
+</div> <!-- container -->
+
+@code
+{
+    private NotepadState _state = NotepadState.Loading;
+    private bool _canSave = false;
+
+    [Parameter]
+    public string Filename { get; set; }
+
+    private NotepadFile notepadFile;
+
+    private async void Save()
+    {
+        _state = NotepadState.Saving;
+        notepadFile = await Http.PostJsonAsync<NotepadFile>($"api/notepad/{Filename}", notepadFile);
+        _state = NotepadState.CanWrite;
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        notepadFile = await Http.GetJsonAsync<NotepadFile>($"api/notepad/{Filename}");
+        _state = NotepadState.CanWrite;
+    }
+
+    public enum NotepadState
+    {
+        Loading,
+        CanWrite,
+        Saving
+    }
+}
